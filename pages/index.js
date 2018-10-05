@@ -1,32 +1,24 @@
 import Link from "next/link";
-import { getBlogPostsAPI } from "../api";
-import { linkResolver } from "../helpers";
+import { getHomePageAPI, getBlogPostsAPI } from "../api";
+import { linkResolver, PRISMIC, NEXT } from "../helpers";
 import DefaultLayout from "../layouts";
+import Posts from "../components/posts";
 
-const Index = ({ posts = [] }) => (
+const Index = ({ home, posts = [] }) => (
   <DefaultLayout>
-    <h2> Recent Blog Posts </h2>
+    <h1>{home.data.title[0].text}</h1>
 
-    <ul>
-      {posts.map((post, index) => (
-        <li key={index}>
-          <Link
-            as={linkResolver(post)}
-            href={`/blogPost?slug=${post.uid}`}
-            passHref
-          >
-            <a>{post.data.title[0].text}</a>
-          </Link>
-        </li>
-      ))}
-    </ul>
+    <Posts posts={posts} />
   </DefaultLayout>
 );
 
 Index.getInitialProps = async () => {
-  const response = await getBlogPostsAPI({ pageSize: 5 });
+  const homePageResponse = await getHomePageAPI();
+  const blogPostsResponse = await getBlogPostsAPI({ pageSize: 5 });
+
   return {
-    posts: response.results
+    home: homePageResponse,
+    posts: blogPostsResponse.results
   };
 };
 
